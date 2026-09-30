@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flores moradas animadas</title>
+<style>
+:root{--bg:#07040f;--ink:#efe6ff;--dim:#a596c8;--violet:#a855f7;--line:rgba(190,140,255,.22)}
+*{box-sizing:border-box;margin:0}
+html,body{min-height:100%}
+body{background:radial-gradient(ellipse at 50% -10%,#1d0b3a 0%,var(--bg) 60%) fixed;color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px 16px 40px}
+header{max-width:1000px;margin:0 auto 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+h1{font:italic 400 clamp(1.5rem,3.4vw,2.2rem)/1.1 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;letter-spacing:.01em}
+[role=tablist]{display:flex;gap:6px;flex-wrap:wrap;padding:5px;border:1px solid var(--line);border-radius:999px;background:rgba(20,8,40,.6)}
+[role=tab]{font:inherit;font-size:.92rem;color:var(--dim);background:none;border:0;border-radius:999px;padding:8px 16px;cursor:pointer;transition:.25s}
+[role=tab]:hover{color:var(--ink)}
+[role=tab][aria-selected=true]{color:#fff;background:linear-gradient(135deg,#7c3aed,#c026d3);box-shadow:0 0 18px rgba(168,85,247,.55)}
+:focus-visible{outline:2px solid #e9c8ff;outline-offset:2px}
+main{max-width:1000px;margin:0 auto}
+.panel{display:none;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(120,50,220,.22)}
+.panel.on{display:block}
+.scene{aspect-ratio:800/560;width:100%}
+.scene svg{display:block;width:100%;height:100%}
+#p1{background:linear-gradient(180deg,#031024 0%,#0278ae 100%)}
+#p2{background:radial-gradient(ellipse at 50% 30%,#1a0d33 0%,#05040a 65%)}
+#p3{background:#030208;display:none;grid-template-columns:minmax(0,1.5fr) minmax(220px,1fr);align-items:center;gap:20px;padding:20px}
+#p3.on{display:grid}
+canvas{width:100%;height:auto;aspect-ratio:1;display:block;filter:drop-shadow(0 0 12px var(--glow,rgba(168,85,247,.55)))}
+.ctl{display:flex;flex-direction:column;gap:20px}
+.ctl h2{font:italic 400 1.3rem Georgia,serif}
+.ctl p{color:var(--dim);font-size:.9rem}
+.ctl label,.ctl legend{font-size:.9rem;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:6px}
+fieldset{border:0;padding:0}
+.sw{display:flex;flex-direction:column;gap:8px}
+.sw button{display:flex;align-items:center;gap:10px;font:inherit;font-size:.92rem;color:var(--ink);background:rgba(30,12,60,.6);border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;transition:.2s}
+.sw button i{width:22px;height:22px;border-radius:50%;flex:none}
+.sw button[aria-pressed=true]{border-color:#c084fc;box-shadow:0 0 14px rgba(192,132,252,.5)}
+input[type=range]{width:100%;accent-color:#b45cf5}
+.go-btn{font:inherit;color:#fff;border:0;border-radius:12px;padding:10px 16px;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#c026d3);box-shadow:0 0 16px rgba(168,85,247,.45)}
+@media(max-width:760px){#p3.on{grid-template-columns:1fr}}
+ 
+/* Brotes */
+.stem{stroke-dasharray:1;stroke-dashoffset:1}
+.go .stem{animation:draw 1.8s cubic-bezier(.35,.7,.25,1) var(--d,0s) both}
+@keyframes draw{to{stroke-dashoffset:0}}
+.head,.leaf,.blade{transform-box:fill-box;transform:scale(0)}
+.head{transform-origin:50% 50%}
+.cup{transform-origin:50% 100%}
+.leaf{transform-origin:var(--o,0% 100%)}
+.blade{transform-origin:50% 100%}
+.go .head{animation:bloom 1.8s cubic-bezier(.2,1.25,.4,1) var(--d,0s) both}
+.go .leaf{animation:pop 1.2s cubic-bezier(.2,1.2,.4,1) var(--d,0s) both}
+.go .blade{animation:pop 1.5s ease-out var(--d,0s) both}
+@keyframes bloom{from{transform:scale(0) rotate(-80deg)}to{transform:scale(1) rotate(0)}}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:sway 5s ease-in-out var(--s,0s) infinite alternate}
+@keyframes sway{from{transform:rotate(-1.8deg)}to{transform:rotate(1.8deg)}}
+.spin{transform-box:fill-box;transform-origin:50% 50%;animation:spin 90s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fly{opacity:0}
+.go .fly{animation:fade 2.5s ease 1.4s both}
+@keyframes fade{to{opacity:1}}
+.star{animation:tw 3s ease-in-out var(--s,0s) infinite alternate}
+@keyframes tw{from{opacity:.15}to{opacity:.9}}
+@media(prefers-reduced-motion:reduce){.sway,.spin,.star{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Flores moradas en movimiento</h1>
+  <div role="tablist" aria-label="Estilos de flor">
+    <button role="tab" data-i="0" aria-selected="true">Girasol Ilustrado</button>
+    <button role="tab" data-i="1" aria-selected="false">Jardín Nocturno</button>
+    <button role="tab" data-i="2" aria-selected="false">Flor Geométrica Canvas</button>
+  </div>
+</header>
+ 
+<!-- Definiciones compartidas -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="glowS" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="blur6" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="blur1"><feGaussianBlur stdDeviation="1.2"/></filter>
+  <linearGradient id="gPet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6bfff"/><stop offset="1" stop-color="#8a2be2"/></linearGradient>
+  <linearGradient id="gPet2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e0ff"/><stop offset="1" stop-color="#b862f2"/></linearGradient>
+  <radialGradient id="gCtr"><stop offset="0" stop-color="#12031f"/><stop offset=".55" stop-color="#3a0d6d"/><stop offset="1" stop-color="#8a3fd8"/></radialGradient>
+  <linearGradient id="gLeaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dffa8"/><stop offset="1" stop-color="#138a4b"/></linearGradient>
+  <linearGradient id="gStem1" gradientUnits="userSpaceOnUse" x1="385" y1="0" x2="415" y2="0"><stop offset="0" stop-color="#1c9c54"/><stop offset=".5" stop-color="#8bffb0"/><stop offset="1" stop-color="#1c9c54"/></linearGradient>
+  <linearGradient id="gTeal" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0a3d52"/><stop offset="1" stop-color="#22c1cc"/></linearGradient>
+  <linearGradient id="gTeal2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#071f33"/><stop offset="1" stop-color="#1b7e97"/></linearGradient>
+  <linearGradient id="gGrass" gradientUnits="userSpaceOnUse" x1="0" y1="560" x2="0" y2="330"><stop offset="0" stop-color="#0d4f1c"/><stop offset="1" stop-color="#58ff72"/></linearGradient>
+  <linearGradient id="gCupA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4dcff"/><stop offset="1" stop-color="#a24bf0"/></linearGradient>
+  <linearGradient id="gCupB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0b5ff"/><stop offset="1" stop-color="#7a2ed0"/></linearGradient>
+  <g id="cup">
+    <circle r="36" cy="-14" fill="#c77dff" opacity=".4" filter="url(#blur6)"/>
+    <path d="M0 12C-36 8-40-22-24-30C-12-34-4-20 0-6Z" fill="url(#gCupB)"/>
+    <path d="M0 12C36 8 40-22 24-30C12-34 4-20 0-6Z" fill="url(#gCupB)"/>
+    <path d="M0 14C-16 2-16-26 0-32C16-26 16 2 0 14Z" fill="url(#gCupA)"/>
+    <ellipse cy="-21" rx="16" ry="4.5" fill="#fff4ff" opacity=".9" filter="url(#glowS)"/>
+  </g>
+</defs></svg>
+ 
+<main>
+  <!-- 1. Girasol ilustrado -->
+  <section class="panel on" id="p1" role="tabpanel">
+    <div class="scene"><svg id="s1" viewBox="0 0 800 560" preserveAspectRatio="xMidYMid slice" aria-label="Girasol morado con luciérnagas">
+      <g id="ff1" class="fly" filter="url(#glowS)"></g>
+      <path class="stem" pathLength="1" d="M400 560 C396 470 406 380 400 262" fill="none" stroke="url(#gStem1)" stroke-width="10" stroke-linecap="round" filter="url(#glowS)" style="--d:.1s"/>
+      <g style="--d:1s"><g transform="translate(400,440)"><g class="leaf" style="--o:0% 50%"><path d="M0 0C-40-32-84-24-112 8C-70 26-28 20 0 0Z" fill="url(#gLeaf)" stroke="#a6ffc4" stroke-opacity=".5" transform="scale(-1,1)" /></g></g></g>
+      <g transform="translate(400,395)"><g class="leaf" style="--d:1.25s;--o:0% 50%"><path d="M0 0C40-32 84-24 112 8C70 26 28 20 0 0Z" fill="url(#gLeaf)" stroke="#a6ffc4" stroke-opacity=".5"/></g></g>
+      <g transform="translate(400,225)" filter="url(#glow)"><g class="head" style="--d:1.5s"><g class="spin" id="petals1"></g></g></g>
+    </svg></div>
+  </section>
+ 
+  <!-- 2. Jardín nocturno -->
+  <section class="panel" id="p2" role="tabpanel">
+    <div class="scene"><svg id="s2" viewBox="0 0 800 560" preserveAspectRatio="xMidYMid slice" aria-label="Jardín nocturno con flores moradas">
+      <g id="stars"></g>
+      <g id="grassBack" filter="url(#blur1)" opacity=".7"></g>
+      <g id="leaves"></g>
+      <g id="stems" fill="none" stroke="#1aa3ae" stroke-linecap="round" filter="url(#glowS)">
+        <path class="stem" pathLength="1" stroke-width="5" d="M400 560C398 440 402 260 400 148" style="--d:.2s"/>
+        <path class="stem" pathLength="1" stroke-width="4.5" d="M392 560C380 430 340 320 318 226" style="--d:.5s"/>
+        <path class="stem" pathLength="1" stroke-width="4.5" d="M410 560C430 430 480 320 494 216" style="--d:.7s"/>
+      </g>
+      <g id="sl"></g>
+      <g transform="translate(400,136)"><g class="head cup" style="--d:1.7s"><use href="#cup"/></g></g>
+      <g transform="translate(316,212) rotate(-14)"><g class="head cup" style="--d:2s"><use href="#cup"/></g></g>
+      <g transform="translate(496,202) rotate(15)"><g class="head cup" style="--d:2.3s"><use href="#cup"/></g></g>
+      <g id="grassFront"></g>
+      <g id="ff2" filter="url(#glowS)"></g>
+    </svg></div>
+  </section>
+ 
+  <!-- 3. Flor geométrica -->
+  <section class="panel" id="p3" role="tabpanel">
+    <canvas id="cv" aria-label="Flor geométrica tipo espirógrafo"></canvas>
+    <div class="ctl">
+      <div><h2>Flor geométrica</h2><p>Cada pétalo es un trazo fino; al superponerlos aparece el encaje.</p></div>
+      <fieldset><legend>Color</legend>
+        <div class="sw" id="sw">
+          <button data-k="0" aria-pressed="true"><i style="background:linear-gradient(135deg,#e9b8ff,#7c2ff0 60%,#ffe14d)"></i>Violeta y centro dorado</button>
+          <button data-k="1" aria-pressed="false"><i style="background:linear-gradient(135deg,#c9b8ff,#5b3fd0 60%,#c026d3)"></i>Lavanda con semillas</button>
+          <button data-k="2" aria-pressed="false"><i style="background:linear-gradient(135deg,#f4dcff,#a24bff 60%,#ff2d95)"></i>Amatista y centro rosa</button>
+        </div>
+      </fieldset>
+      <div><label for="rl">Capas de pétalos <output id="ol">18</output></label><input id="rl" type="range" min="4" max="32" value="18"></div>
+      <div><label for="rp">Cantidad de pétalos <output id="op">16</output></label><input id="rp" type="range" min="8" max="24" value="16"></div>
+      <button class="go-btn" id="again">Florecer de nuevo</button>
+    </div>
+  </section>
+</main>
+ 
+<script>
+const NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const R=(a,b)=>a+Math.random()*(b-a);
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+ 
+/* ---------- Escena 1: girasol ---------- */
+(()=>{const g=$('#petals1');
+ for(let i=0;i<16;i++)el('ellipse',{cx:0,cy:-74,rx:15,ry:38,fill:'url(#gPet)',transform:`rotate(${i*22.5})`},g);
+ for(let i=0;i<16;i++)el('ellipse',{cx:0,cy:-64,rx:12,ry:30,fill:'url(#gPet2)',opacity:.9,transform:`rotate(${i*22.5+11.25})`},g);
+ el('circle',{r:46,fill:'url(#gCtr)'},g);
+ for(let i=0;i<60;i++){const a=i*2.39996,r=4.6*Math.sqrt(i);el('circle',{cx:Math.cos(a)*r,cy:Math.sin(a)*r,r:1.3,fill:'#d9a8ff',opacity:.35},g)}
+})();
+ 
+/* ---------- Escena 2: jardín ---------- */
+(()=>{let s=7;const q=()=>(s=(s*16807)%2147483647)/2147483647;
+ const st=$('#stars');for(let i=0;i<50;i++){const c=el('circle',{cx:q()*800,cy:q()*420,r:.5+q()*1.1,fill:'#e8d7ff',class:'star'},st);c.style.setProperty('--s',(q()*3)+'s')}
+ const blade=(p,x,far,d)=>{const h=(far?90:70)+q()*(far?190:150),b=(q()-.5)*70,w=far?2:1.6+q()*2.4;
+  const gb=el('g',{class:'blade'},p);gb.style.setProperty('--d',d+'s');
+  const path=el('path',{d:`M${x} 562Q${x+b*.5} ${562-h*.55} ${x+b*1.5} ${562-h}`,fill:'none',stroke:'url(#gGrass)','stroke-width':w,'stroke-linecap':'round',class:'sway'},gb);path.style.setProperty('--s',(-q()*5)+'s')};
+ for(let i=0;i<26;i++){const x=q()<.5?40+q()*260:500+q()*260;blade($('#grassBack'),x,true,.3+q()*1.2)}
+ for(let i=0;i<30;i++){const x=q()<.7?(q()<.5?20+q()*250:530+q()*250):300+q()*200;blade($('#grassFront'),x,false,.5+q()*1.4)}
+ const lv=$('#leaves');
+ for(let i=0;i<24;i++){const back=i<12,a=(q()-.5)*150,l=(back?110:70)+q()*90,w=22+q()*20,x=400+(q()-.5)*90;
+  const g=el('g',{transform:`translate(${x},562) rotate(${a})`},lv),b=el('g',{class:'blade'},g);b.style.setProperty('--d',(.4+q()*1.2)+'s');
+  const sw=el('g',{class:'sway'},b);sw.style.setProperty('--s',(-q()*5)+'s');
+  el('path',{d:`M0 0C${w} ${-l*.3} ${w} ${-l*.75} 0 ${-l}C${-w} ${-l*.75} ${-w} ${-l*.3} 0 0Z`,fill:back?'url(#gTeal2)':'url(#gTeal)',stroke:'#54e0e6','stroke-opacity':.25},sw);
+  el('path',{d:`M0 -4L0 ${-l*.9}`,stroke:'#7cf0f4','stroke-opacity':.3,fill:'none'},sw)}
+ const sl=$('#sl');[[398,320,-55],[402,280,50],[372,340,-62],[352,290,-45],[440,350,58],[470,300,52],[402,220,40],[396,200,-40]].forEach(([x,y,a],i)=>{
+  const g=el('g',{transform:`translate(${x},${y}) rotate(${a})`},sl),l=el('g',{class:'leaf'},g);l.style.setProperty('--d',(1+i*.15)+'s');
+  el('path',{d:'M0 0C14-10 32-9 44 0C32 10 14 10 0 0Z',fill:'#3ddc7a',opacity:.85,filter:'url(#glowS)'},l)});
+})();
+ 
+/* ---------- Luciérnagas ---------- */
+const FF={
+ 1:{g:$('#ff1'),p:[]},2:{g:$('#ff2'),p:[]}};
+for(let i=0;i<34;i++){const c=el('circle',{r:1,fill:'#ffe38a'},FF[1].g);FF[1].p.push({c,x:R(0,800),y:R(0,560),ph:R(0,6.3),sp:R(.4,1),r:R(1.3,3.2),vy:R(-9,-3)})}
+const SRC=[[400,110],[316,188],[496,178]];
+function respawn(p,first){const s=SRC[Math.random()*3|0];p.x=s[0]+R(-8,8);p.y=s[1]+R(-4,6);p.life=R(4,9);p.age=first?R(0,p.life):0;p.vy=R(-42,-16);p.vx=R(-6,6);p.ph=R(0,6.3);p.r=R(1,2.7);p.c.setAttribute('r',p.r.toFixed(2));p.c.setAttribute('fill',Math.random()<.8?'#ffe38a':(Math.random()<.5?'#7ff3ff':'#e4b8ff'))}
+for(let i=0;i<48;i++){const c=el('circle',{r:1,fill:'#ffe38a',opacity:0},FF[2].g),p={c};respawn(p,true);FF[2].p.push(p)}
+function tick1(t,dt){FF[1].p.forEach(p=>{p.x+=Math.sin(t*p.sp+p.ph)*14*dt;p.y+=p.vy*dt;if(p.y<-10){p.y=570;p.x=R(0,800)}
+ p.c.setAttribute('cx',p.x.toFixed(1));p.c.setAttribute('cy',p.y.toFixed(1));p.c.setAttribute('r',p.r);p.c.setAttribute('opacity',(.3+.7*(.5+.5*Math.sin(t*1.7*p.sp+p.ph))).toFixed(2))})}
+function tick2(t,dt){const ready=t-t0>2.2;FF[2].p.forEach(p=>{p.age+=dt;if(p.age>p.life)respawn(p,false);
+ p.x+=(p.vx+Math.sin(p.age*1.4+p.ph)*12)*dt;p.y+=p.vy*dt;
+ p.c.setAttribute('cx',p.x.toFixed(1));p.c.setAttribute('cy',p.y.toFixed(1));p.c.setAttribute('opacity',ready?(Math.sin(Math.PI*p.age/p.life)*.95).toFixed(2):0)})}
+ 
+/* ---------- Escena 3: flor geométrica ---------- */
+const cv=$('#cv'),cx=cv.getContext('2d'),S=900;cv.width=cv.height=S;
+const PAL=[
+ {i:'#f0c4ff',o:'#7c2ff0',c1:'#fff27a',c2:'#ffb400',dots:0,glow:'rgba(150,70,255,.6)'},
+ {i:'#d8ccff',o:'#5b3fd0',c1:'#c026d3',c2:'#6b0f8a',dots:1,glow:'rgba(120,90,255,.6)'},
+ {i:'#f8e2ff',o:'#a24bff',c1:'#ff5cae',c2:'#ff2d95',dots:0,glow:'rgba(210,90,255,.6)'}];
+let pal=0,layers=18,N=16,start=performance.now();
+const ease=x=>1-Math.pow(1-x,3);
+function drawFlower(now){
+ const p=Math.min((now-start)/3200,1),sp=ease(Math.min(p/.3,1)),q=ease(Math.max((p-.2)/.8,0));
+ const P=PAL[pal],C=S/2,CY=390,Rm=330;cx.clearRect(0,0,S,S);
+ const top=S-(S-CY)*sp;
+ const sg=cx.createLinearGradient(C-12,0,C+12,0);sg.addColorStop(0,'#0c5a1e');sg.addColorStop(.5,'#3fe06a');sg.addColorStop(1,'#0c5a1e');
+ cx.fillStyle=sg;cx.fillRect(C-11,top,22,S-top);
+ if(q<=0)return;
+ const rot=(now/1000)*.05+(1-q)*1.4;
+ const gr=cx.createRadialGradient(C,CY,0,C,CY,Rm);gr.addColorStop(0,P.i);gr.addColorStop(1,P.o);
+ cx.strokeStyle=gr;cx.lineWidth=1.1;
+ const vis=layers*q;
+ for(let i=1;i<=layers;i++){
+  if(i>vis+1)break;
+  const f=Math.min(vis-i+1,1),r=Rm*(i/layers)*q,w=r*.44,b=r*.1,tw=(i/layers)*.16;
+  cx.globalAlpha=.85*f;cx.beginPath();
+  for(let j=0;j<N;j++){
+   const a=j*2*Math.PI/N+rot+tw,dx=Math.cos(a),dy=Math.sin(a),px=-dy,py=dx;
+   const bx=C+dx*b,by=CY+dy*b,tx=C+dx*r,ty=CY+dy*r;
+   cx.moveTo(bx,by);
+   cx.bezierCurveTo(bx+dx*r*.3+px*w,by+dy*r*.3+py*w,tx-dx*r*.28+px*w*.5,ty-dy*r*.28+py*w*.5,tx,ty);
+   cx.bezierCurveTo(tx-dx*r*.28-px*w*.5,ty-dy*r*.28-py*w*.5,bx+dx*r*.3-px*w,by+dy*r*.3-py*w,bx,by);
+  }
+  cx.stroke();
+ }
+ cx.globalAlpha=1;
+ const cr=Rm*.13*q;
+ if(cr>1){
+  if(P.dots){
+   cx.fillStyle=P.c2;cx.beginPath();cx.arc(C,CY,cr*1.15,0,7);cx.fill();
+   for(let k=0;k<150;k++){const a=k*2.39996+rot*2,d=cr*1.05*Math.sqrt(k/150);
+    cx.fillStyle=k%3?P.c1:'#ffd9f6';cx.beginPath();cx.arc(C+Math.cos(a)*d,CY+Math.sin(a)*d,cr*.055+1,0,7);cx.fill()}
+  }else{
+   const cg=cx.createRadialGradient(C-cr*.3,CY-cr*.3,0,C,CY,cr);cg.addColorStop(0,P.c1);cg.addColorStop(1,P.c2);
+   cx.fillStyle=cg;cx.beginPath();cx.arc(C,CY,cr,0,7);cx.fill();
+  }
+ }
+}
+ 
+/* ---------- Control de pestañas y bucle ---------- */
+let active=0,t0=performance.now()/1000,last=t0;
+function show(i){
+ active=i;
+ $$('[role=tab]').forEach((b,k)=>b.setAttribute('aria-selected',k===i));
+ $$('.panel').forEach((p,k)=>p.classList.toggle('on',k===i));
+ t0=performance.now()/1000;
+ if(i<2){const s=$(i?'#s2':'#s1');s.classList.remove('go');void s.getBoundingClientRect();s.classList.add('go');FF[2].p.forEach(p=>respawn(p,true))}
+ else start=performance.now();
+}
+$$('[role=tab]').forEach(b=>b.addEventListener('click',()=>show(+b.dataset.i)));
+$$('#sw button').forEach(b=>b.addEventListener('click',()=>{pal=+b.dataset.k;$$('#sw button').forEach(x=>x.setAttribute('aria-pressed',x===b));cv.style.setProperty('--glow',PAL[pal].glow)}));
+$('#rl').addEventListener('input',e=>{layers=+e.target.value;$('#ol').textContent=layers});
+$('#rp').addEventListener('input',e=>{N=+e.target.value;$('#op').textContent=N});
+$('#again').addEventListener('click',()=>{start=performance.now()});
+function frame(now){
+ const t=now/1000,dt=Math.min(t-last,.05);last=t;
+ if(active===0)tick1(t,dt);else if(active===1)tick2(t,dt);else drawFlower(now);
+ requestAnimationFrame(frame);
+}
+cv.style.setProperty('--glow',PAL[0].glow);
+show(0);requestAnimationFrame(frame);
+</script>
+</body>
+</html>
